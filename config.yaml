@@ -1,0 +1,32 @@
+cookie:
+  expiry_days: 30
+  key: some_signature_key
+  name: some_cookie_name
+credentials:
+  usernames:
+    princessventures:
+      email: cess.ventures209@gmail.com
+      name: Princess
+      password: $2b$12$3o2VPBbru/tWH/CtRE0VzepCrMN9FzTm22mwOkooFtPOtsmp7URKO
+    user2:
+      email: user2@example.com
+      name: User Two
+      password: $2b$12$3o2VPBbru/tWH/CtRE0VzepCrMN9FzTm22mwOkooFtPOtsmp7URKO
+    user3:
+      email: user3@gmail.com
+      name: User 3
+      password: $2b$12$ZEWJVd/dFoM3ygqRkPj2GuaFTrpGvf7yUNWNvczE3tXim5tYGuoQm
+preauthorized:
+  emails:
+  - user1@example.com
+  - user2@example.com
+settings:
+  user1:
+    email_reminder: Daily
+    reminder_time: 07:14
+  user2:
+    email_reminder: None
+    reminder_time: '12:00'
+  user3:
+    email_reminder: None
+    reminder_time: '12:00'

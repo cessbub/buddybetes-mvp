@@ -1,0 +1,10 @@
+streamlit
+sqlite3
+matplotlib
+plotly
+streamlit-authenticator
+passlib
+pandas
+schedule
+pyyaml
+smtplib
