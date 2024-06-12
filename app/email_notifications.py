@@ -5,10 +5,11 @@ import schedule
 import time
 import yaml
 from datetime import datetime, timedelta
+import streamlit as st
 
 # Configure your email credentials
-EMAIL_ADDRESS = "pventures@up.edu.ph"
-EMAIL_PASSWORD = "wzhc wubm yorz ohdw"
+EMAIL_ADDRESS = st.secrets["general"]["EMAIL_ADDRESS"]
+EMAIL_PASSWORD = st.secrets["general"]["EMAIL_PASSWORD"]
 SMTP_SERVER = "smtp.gmail.com"  # Update this to your SMTP server
 SMTP_PORT = 587  # Update this to your SMTP port if necessary
 
