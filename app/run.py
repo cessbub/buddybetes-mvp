@@ -32,11 +32,11 @@ def initialize_session_state():
     if 'logout' not in st.session_state:
         st.session_state['logout'] = False
     if 'page' not in st.session_state:
-        st.session_state['page'] = 'Analytics'  # Set default page to Analytics
+        st.session_state['page'] = 'Login'  # Set default page to Login
 
 def main():
     initialize_session_state()
-    
+
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
     st.sidebar.divider()
@@ -51,6 +51,10 @@ def main():
         st.sidebar.button("Profile", on_click=lambda: set_page('Profile'))
         st.sidebar.button("Email Notifications", on_click=lambda: set_page('Settings'))
         st.sidebar.button("Logout", on_click=logout_user)
+        
+        # Automatically redirect to the Analytics page if logged in
+        if st.session_state['page'] == 'Login':
+            st.session_state['page'] = 'Analytics'
     else:
         # Menu for non-logged-in users
         st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
@@ -89,7 +93,7 @@ def logout_user():
     st.session_state['authentication_status'] = None
     st.session_state['name'] = None
     st.session_state['username'] = None
-    st.session_state['page'] = 'Analytics'
+    st.session_state['page'] = 'Login'
     st.success("You have been logged out successfully.")
 
 def login_user():
