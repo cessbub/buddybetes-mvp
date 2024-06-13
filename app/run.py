@@ -75,10 +75,7 @@ def initialize_session_state():
 
 def main():
     initialize_session_state()
-
-    # Show modal if not shown already
-    show_modal()
-
+        
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
     st.sidebar.divider()
@@ -138,6 +135,8 @@ def logout_user():
     st.success("You have been logged out successfully.")
 
 def login_user():
+    show_modal()
+    
     st.subheader("Login to Your Account")
 
     with st.form(key='login_form'):
