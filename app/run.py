@@ -77,8 +77,7 @@ def main():
     initialize_session_state()
 
     # Show modal if not shown already
-    if not st.session_state['modal_shown']:
-        show_modal()
+    show_modal()
 
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
