@@ -51,7 +51,6 @@ def main():
         st.sidebar.button("Logout", on_click=logout_user)
     else:
         # Menu for non-logged-in users
-        st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
         st.sidebar.button("Login", on_click=lambda: set_page('Login'))
         st.sidebar.button("Register", on_click=lambda: set_page('Register'))
 

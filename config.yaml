@@ -21,6 +21,9 @@ preauthorized:
   - user1@example.com
   - user2@example.com
 settings:
+  princessventures:
+    email_reminder: Daily
+    reminder_time: 07:58
   user1:
     email_reminder: Daily
     reminder_time: 07:14
