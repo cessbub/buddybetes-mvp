@@ -29,8 +29,7 @@ def create_tables():
     conn.commit()
     conn.close()
     print("Tables created successfully.")
-    
-    
+
 def create_user_table():
     conn = create_connection()
     c = conn.cursor()
@@ -39,7 +38,9 @@ def create_user_table():
             username TEXT PRIMARY KEY,
             email TEXT NOT NULL,
             name TEXT NOT NULL,
-            password TEXT NOT NULL
+            password TEXT NOT NULL,
+            email_reminder TEXT DEFAULT 'Daily',
+            reminder_time TEXT DEFAULT '07:58'
         )
     ''')
     conn.commit()

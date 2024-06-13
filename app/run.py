@@ -47,11 +47,11 @@ def main():
         st.sidebar.markdown("Choose any in the menu:")
         
         # Menu for logged-in users
-        st.sidebar.button("Analytics", on_click=lambda: set_page('Analytics'))
-        st.sidebar.button("Log Data", on_click=lambda: set_page('Log Data'))
-        st.sidebar.button("Profile", on_click=lambda: set_page('Profile'))
-        st.sidebar.button("Email Notifications", on_click=lambda: set_page('Settings'))
-        st.sidebar.button("Logout", on_click=logout_user)
+        st.sidebar.button("Analytics", on_click=lambda: set_page('Analytics'), key="btn_analytics")
+        st.sidebar.button("Log Data", on_click=lambda: set_page('Log Data'), key="btn_log_data")
+        st.sidebar.button("Profile", on_click=lambda: set_page('Profile'), key="btn_profile")
+        st.sidebar.button("Email Notifications", on_click=lambda: set_page('Settings'), key="btn_settings")
+        st.sidebar.button("Logout", on_click=logout_user, key="btn_logout")
         
         # Automatically redirect to the Analytics page if logged in
         if st.session_state['page'] == 'Login':
@@ -59,8 +59,8 @@ def main():
     else:
         # Menu for non-logged-in users
         st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
-        st.sidebar.button("Login", on_click=lambda: set_page('Login'))
-        st.sidebar.button("Register", on_click=lambda: set_page('Register'))
+        st.sidebar.button("Login", on_click=lambda: set_page('Login'), key="btn_login")
+        st.sidebar.button("Register", on_click=lambda: set_page('Register'), key="btn_register")
 
     if st.session_state['page'] == 'Login':
         login_user()
@@ -107,7 +107,7 @@ def login_user():
 
     username = st.text_input(fields['Username'])
     password = st.text_input(fields['Password'], type="password")
-    submit_button = st.button(fields['Login'])
+    submit_button = st.button(fields['Login'], key="btn_login_submit")
 
     if submit_button:
         try:
@@ -150,7 +150,7 @@ def log_data_form(username):
         mood = st.selectbox("Mood", ["Happy", "Sad", "Neutral", "Anxious", "Stressed"])
         symptoms = st.text_area("Symptoms")
 
-        submit_button = st.form_submit_button(label="Submit")
+        submit_button = st.form_submit_button(label="Submit", key="btn_submit_health_data")
 
     if submit_button:
         try:
@@ -181,7 +181,7 @@ def register_user():
         name = st.text_input("Name")
         password = st.text_input("Password", type="password")
         confirm_password = st.text_input("Confirm Password", type="password")
-        submit_button = st.form_submit_button(label="Register")
+        submit_button = st.form_submit_button(label="Register", key="btn_register_submit")
 
     if submit_button:
         if password != confirm_password:
@@ -192,8 +192,8 @@ def register_user():
                 conn = create_connection()
                 c = conn.cursor()
                 c.execute('''
-                    INSERT INTO users (username, email, name, password)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO users (username, email, name, password, email_reminder, reminder_time)
+                    VALUES (?, ?, ?, ?, 'Daily', '07:58')
                 ''', (username, email, name, hashed_password))
                 conn.commit()
                 conn.close()
@@ -210,7 +210,9 @@ def profile_management(username):
             new_username = st.text_input("Username", value=user_info[0])
             email = st.text_input("Email", value=user_info[1])
             name = st.text_input("Name", value=user_info[2])
-            submit_button = st.form_submit_button(label="Update Profile")
+            email_reminder = st.selectbox("Email Reminder", ["None", "Daily", "Weekly"], index=["None", "Daily", "Weekly"].index(user_info[4]))
+            reminder_time = st.time_input("Reminder Time", value=pd.to_datetime(user_info[5]).time())
+            submit_button = st.form_submit_button(label="Update Profile", key="btn_update_profile")
 
         if submit_button:
             try:
@@ -226,7 +228,7 @@ def profile_management(username):
                     conn.commit()
                     conn.close()
 
-                update_user_info(username, new_username, email, name)
+                update_user_info(username, new_username, email, name, email_reminder, reminder_time.strftime('%H:%M'))
                 st.session_state['username'] = new_username
                 st.success("Profile updated successfully!")
             except Exception as e:
@@ -252,27 +254,26 @@ def settings(username):
             value=pd.to_datetime(reminder_time).time(), 
             key="reminder_time_input"
         )
-        submit_button = st.form_submit_button(label="Save Email Notification Reminder")
+        submit_button = st.form_submit_button(label="Save Email Notification Reminder", key="btn_save_notification")
 
     if submit_button:
-        # Save settings to config.yaml
-        with open('config.yaml') as file:
-            config = yaml.safe_load(file)
+        try:
+            conn = create_connection()
+            c = conn.cursor()
+            c.execute('''
+                UPDATE users
+                SET email_reminder = ?, reminder_time = ?
+                WHERE username = ?
+            ''', (email_reminder, reminder_time.strftime('%H:%M'), username))
+            conn.commit()
+            conn.close()
 
-        if 'settings' not in config:
-            config['settings'] = {}
-        config['settings'][username] = {
-            'email_reminder': email_reminder,
-            'reminder_time': reminder_time.strftime('%H:%M')
-        }
+            st.success("Reminder settings saved successfully!")
 
-        with open('config.yaml', 'w') as file:
-            yaml.safe_dump(config, file)
-
-        st.success("Reminder settings saved successfully!")
-
-        # Cancel any existing schedule
-        schedule_email(username, "[BUDDYBETES REMINDER] Reminder to log your Health Data!", "This is your BuddyBetes reminder to log your health data.")
+            # Cancel any existing schedule
+            schedule_email(username, "[BUDDYBETES REMINDER] Reminder to log your Health Data!", "This is your BuddyBetes reminder to log your health data.")
+        except Exception as e:
+            st.error(f"An error occurred while saving the settings: {e}")
 
 def analytics_dashboard(username):
     st.subheader("Analytics Dashboard")

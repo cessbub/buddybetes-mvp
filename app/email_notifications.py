@@ -6,6 +6,7 @@ import time
 import yaml
 from datetime import datetime, timedelta
 import streamlit as st
+from database import create_connection
 
 # Configure your email credentials
 EMAIL_ADDRESS = st.secrets["general"]["EMAIL_ADDRESS"]
@@ -35,10 +36,11 @@ def save_last_sent_times():
 
 def send_email(username, subject, content):
     try:
-        # Load user email address from config.yaml
-        with open('config.yaml') as file:
-            config = yaml.safe_load(file)
-        user_email = config['credentials']['usernames'][username]['email']
+        conn = create_connection()
+        c = conn.cursor()
+        c.execute('SELECT email FROM users WHERE username = ?', (username,))
+        user_email = c.fetchone()[0]
+        conn.close()
 
         now = datetime.now().replace(second=0, microsecond=0)  # Remove seconds and microseconds
         # Check if email was sent today
@@ -75,11 +77,16 @@ def send_email(username, subject, content):
         print(f"Failed to send email: {e}")
 
 def load_reminder_settings(username):
-    with open('config.yaml') as file:
-        config = yaml.safe_load(file)
-    user_settings = config.get('settings', {}).get(username, {})
-    email_reminder = user_settings.get('email_reminder', 'None')
-    reminder_time = user_settings.get('reminder_time', '12:00')
+    conn = create_connection()
+    c = conn.cursor()
+    c.execute('SELECT email_reminder, reminder_time FROM users WHERE username = ?', (username,))
+    user_settings = c.fetchone()
+    conn.close()
+
+    if user_settings:
+        email_reminder, reminder_time = user_settings
+    else:
+        email_reminder, reminder_time = 'None', '12:00'
     return email_reminder, reminder_time
 
 def schedule_email(username, subject, content):
