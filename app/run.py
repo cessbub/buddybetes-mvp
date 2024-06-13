@@ -97,6 +97,21 @@ def logout_user():
     st.session_state['page'] = 'Login'
     st.success("You have been logged out successfully.")
 
+def create_user_table():
+    conn = create_connection()
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            email TEXT NOT NULL,
+            name TEXT NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+
 def login_user():
     fields = {
         'Form name': 'Login',
@@ -105,21 +120,38 @@ def login_user():
         'Login': 'Login'
     }
 
-    name, authentication_status, username = authenticator.login('main', fields=fields)
+    username = st.text_input(fields['Username'])
+    password = st.text_input(fields['Password'], type="password")
+    submit_button = st.button(fields['Login'])
 
-    if authentication_status:
-        st.session_state['authentication_status'] = authentication_status
-        st.session_state['name'] = name
-        st.session_state['username'] = username
+    if submit_button:
+        try:
+            conn = create_connection()
+            c = conn.cursor()
+            c.execute('SELECT * FROM users WHERE username = ?', (username,))
+            user = c.fetchone()
+            conn.close()
 
-        st.sidebar.title(f"Welcome {name}")
-        authenticator.logout('Logout', 'sidebar')
+            if user:
+                stored_password = user[3]  # Assuming password is in the 4th column
+                if pwd_context.verify(password, stored_password):
+                    st.session_state['authentication_status'] = True
+                    st.session_state['name'] = user[2]  # Assuming name is in the 3rd column
+                    st.session_state['username'] = user[0]  # Assuming username is in the 1st column
 
-        st.session_state['page'] = 'Analytics'
-    elif authentication_status == False:
-        st.error('Username/password is incorrect')
-    elif authentication_status == None:
-        st.warning('Please enter your username and password')
+                    st.sidebar.title(f"Welcome {user[2]}")
+                    authenticator.logout('Logout', 'sidebar')
+
+                    st.session_state['page'] = 'Analytics'
+                else:
+                    st.error('Incorrect password. Please try again.')
+            else:
+                st.error('Username not found. Please register first.')
+        except Exception as e:
+            st.error(f"An error occurred during login: {e}")
+
+
+
 
 def log_data_form(username):
     st.subheader("Log Your Health Data")
@@ -174,30 +206,22 @@ def register_user():
             st.error("Passwords do not match")
         else:
             hashed_password = pwd_context.hash(password)
-            new_user = {
-                'email': email,
-                'name': name,
-                'password': hashed_password
-            }
-
-            # Log the current working directory and contents for debugging
-            st.write(f"Current working directory: {os.getcwd()}")
-            st.write("Contents of the current directory:")
-            st.write(os.listdir())
-
-            config_path = 'config.yaml'
-            if os.path.exists(config_path):
-                with open(config_path) as file:
-                    config = yaml.safe_load(file)
-
-                config['credentials']['usernames'][username] = new_user
-
-                with open(config_path, 'w') as file:
-                    yaml.safe_dump(config, file)
-
+            try:
+                conn = create_connection()
+                c = conn.cursor()
+                c.execute('''
+                    INSERT INTO users (username, email, name, password)
+                    VALUES (?, ?, ?, ?)
+                ''', (username, email, name, hashed_password))
+                conn.commit()
+                conn.close()
                 st.success("User registered successfully! Please log in.")
-            else:
-                st.error(f"Configuration file not found at {config_path}")
+            except Exception as e:
+                st.error(f"An error occurred while registering the user: {e}")
+
+
+
+
 
 def profile_management(username):
     st.subheader("Manage Your Profile")
