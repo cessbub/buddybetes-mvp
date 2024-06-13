@@ -47,6 +47,7 @@ def main():
     # Show dialog if not shown already
     if not st.session_state['dialog_shown']:
         welcome_dialog()
+        st.session_state['dialog_shown'] = True  # Ensure the state is set regardless of how the dialog is closed
 
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
