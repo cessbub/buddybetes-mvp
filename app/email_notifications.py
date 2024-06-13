@@ -142,6 +142,8 @@ def schedule_email(username, subject, content):
         job = schedule.every().day.at(reminder_time).do(job)
         scheduled_jobs[job_id] = job
         logger.info("Job scheduled: %s", job_id)
+    else:
+        logger.info("No email reminder set for %s", username)
 
 def run_scheduled_emails():
     load_last_sent_times()
@@ -151,7 +153,14 @@ def run_scheduled_emails():
         logger.info("Checking for pending jobs...")
         time.sleep(1)
 
-
 def start_scheduler_thread():
+    logger.info("Starting scheduler thread...")
     thread = threading.Thread(target=run_scheduled_emails, daemon=True)
     thread.start()
+    logger.info("Scheduler thread started.")
+
+# Ensure this function is called in your main script
+start_scheduler_thread()
+
+if __name__ == "__main__":
+    main()
