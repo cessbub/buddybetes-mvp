@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 from auth import authenticate, get_user_info, update_user_info
 from database import create_connection, create_tables, create_user_table
@@ -6,10 +8,13 @@ from passlib.context import CryptContext
 import pandas as pd
 import matplotlib.pyplot as plt
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+page_icon_path = os.path.join(script_dir, "images/page_icon.png")
+
 # set up the page configuration
 st.set_page_config(
     page_title="BuddyBetes",
-    page_icon="images/page_icon.png",
+    page_icon=page_icon_path,
     layout="wide",
     initial_sidebar_state="expanded",
 )
