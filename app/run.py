@@ -208,8 +208,8 @@ def profile_management(username):
             new_username = st.text_input("Username", value=user_info[0])
             email = st.text_input("Email", value=user_info[1])
             name = st.text_input("Name", value=user_info[2])
-            email_reminder = st.selectbox("Email Reminder", ["None", "Daily", "Weekly"], index=["None", "Daily", "Weekly"].index(user_info[4]))
-            reminder_time = st.time_input("Reminder Time", value=pd.to_datetime(user_info[5]).time())
+            email_reminder = st.selectbox("Email Reminder Frequency", ["None", "Daily", "Weekly"], index=["None", "Daily", "Weekly"].index(user_info[4]))
+            reminder_time = st.time_input("Reminder Time (24:00H Format)", value=pd.to_datetime(user_info[5]).time())
             submit_button = st.form_submit_button(label="Update Profile")
 
         if submit_button:
