@@ -1,6 +1,5 @@
 import os
 import sys
-
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -8,6 +7,7 @@ import schedule
 import time
 import yaml
 from datetime import datetime, timedelta
+import pytz  # Add this import to handle time zones
 import streamlit as st
 from database import create_connection
 import logging
@@ -121,7 +121,7 @@ def schedule_email(username, subject, content):
         logger.info("Scheduling email for %s at %s", username, reminder_time)
 
         def job():
-            now = datetime.now().replace(second=0, microsecond=0)
+            now = datetime.now(pytz.utc).replace(second=0, microsecond=0)  # Ensure the time is in UTC
             logger.info("Executing job for %s at %s", username, now)
             if job_id in job_executed and job_executed[job_id] == now:
                 logger.info("Job already executed for %s at %s", username, reminder_time)
@@ -150,6 +150,8 @@ def run_scheduled_emails():
     logger.info("Starting email scheduler...")
     while True:
         schedule.run_pending()
+        now = datetime.now(pytz.utc)
+        logger.info("Current time: %s", now)
         logger.info("Checking for pending jobs...")
         time.sleep(1)
 
