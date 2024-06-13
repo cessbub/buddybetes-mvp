@@ -2,6 +2,8 @@ import os
 import sys
 
 import streamlit as st
+import streamlit_modal as modal
+
 from auth import authenticate, get_user_info, update_user_info
 from database import create_connection, create_tables, create_user_table
 from email_notifications import send_email, schedule_email, run_scheduled_emails, load_reminder_settings, start_scheduler_thread
@@ -10,6 +12,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
+
+def show_modal():
+    with modal.container("Welcome Modal", size="large", close_on_click=True):
+        st.markdown("# Welcome to BuddyBetes MVP 🎉")
+        st.markdown("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
+        st.markdown("### Important Information 📢")
+        st.markdown("- This is an **MVP** version, so some features might be limited or in progress.")
+        st.markdown("- Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅")
+        st.markdown("- For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️")
+        st.markdown("We appreciate your understanding and look forward to your feedback!")
 
 # set up the page configuration
 st.set_page_config(
@@ -37,14 +49,22 @@ def initialize_session_state():
         st.session_state['logout'] = False
     if 'page' not in st.session_state:
         st.session_state['page'] = 'Login'  # Set default page to Login
+    if 'modal_shown' not in st.session_state:
+        st.session_state['modal_shown'] = False
 
 def main():
     initialize_session_state()
 
+    # Show modal after 1 second delay if not shown already
+    if not st.session_state['modal_shown']:
+        time.sleep(1)
+        show_modal()
+        st.session_state['modal_shown'] = True
+
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
     st.sidebar.divider()
-    
+
     if st.session_state['authentication_status']:
         st.sidebar.title(f"Welcome, {st.session_state['name']}!")
         st.sidebar.markdown("Choose any in the menu:")
