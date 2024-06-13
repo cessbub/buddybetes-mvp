@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
 
 def show_modal():
-    with modal.open("Welcome Modal"):
+    my_modal = modal.Modal(key="welcome_modal", title="Welcome Modal")
+    if my_modal.show():
         st.markdown("# Welcome to BuddyBetes MVP 🎉")
         st.markdown("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
         st.markdown("### Important Information 📢")
