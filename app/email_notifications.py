@@ -1,3 +1,6 @@
+import os
+import sys
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -9,6 +12,8 @@ import streamlit as st
 from database import create_connection
 import logging
 import threading
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -27,18 +32,25 @@ job_executed = {}  # Dictionary to track if the job was executed in the current 
 def load_last_sent_times():
     global last_sent_times
     try:
-        with open('last_sent_times.yaml') as file:
+        with open('last_sent_times.yaml', 'r') as file:
             last_sent_times = yaml.safe_load(file)
         if last_sent_times is None:
             last_sent_times = {}
+        logger.info("Loaded last_sent_times: %s", last_sent_times)
     except FileNotFoundError:
         last_sent_times = {}
-    logger.info("Loaded last_sent_times: %s", last_sent_times)
+        logger.warning("last_sent_times.yaml file not found. Initializing empty dictionary.")
+    except Exception as e:
+        logger.error("Error loading last_sent_times.yaml: %s", e)
+        last_sent_times = {}
 
 def save_last_sent_times():
-    with open('last_sent_times.yaml', 'w') as file:
-        yaml.safe_dump(last_sent_times, file)
-    logger.info("Saved last_sent_times: %s", last_sent_times)
+    try:
+        with open('last_sent_times.yaml', 'w') as file:
+            yaml.safe_dump(last_sent_times, file)
+        logger.info("Saved last_sent_times: %s", last_sent_times)
+    except Exception as e:
+        logger.error("Error saving last_sent_times.yaml: %s", e)
 
 def send_email(username, subject, content):
     try:
@@ -81,17 +93,21 @@ def send_email(username, subject, content):
         logger.error("Failed to send email: %s", e)
 
 def load_reminder_settings(username):
-    conn = create_connection()
-    c = conn.cursor()
-    c.execute('SELECT email_reminder, reminder_time FROM users WHERE username = ?', (username,))
-    user_settings = c.fetchone()
-    conn.close()
+    try:
+        conn = create_connection()
+        c = conn.cursor()
+        c.execute('SELECT email_reminder, reminder_time FROM users WHERE username = ?', (username,))
+        user_settings = c.fetchone()
+        conn.close()
 
-    if user_settings:
-        email_reminder, reminder_time = user_settings
-    else:
-        email_reminder, reminder_time = 'None', '12:00'
-    return email_reminder, reminder_time
+        if user_settings:
+            email_reminder, reminder_time = user_settings
+        else:
+            email_reminder, reminder_time = 'None', '12:00'
+        return email_reminder, reminder_time
+    except Exception as e:
+        logger.error("Error loading reminder settings for %s: %s", username, e)
+        return 'None', '12:00'
 
 def schedule_email(username, subject, content):
     email_reminder, reminder_time = load_reminder_settings(username)
@@ -131,4 +147,3 @@ def run_scheduled_emails():
 def start_scheduler_thread():
     thread = threading.Thread(target=run_scheduled_emails, daemon=True)
     thread.start()
-
