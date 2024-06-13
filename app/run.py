@@ -57,7 +57,7 @@ def main():
     else:
         # Menu for non-logged-in users
         st.sidebar.button("Login", on_click=lambda: set_page('Login'), key="btn_login")
-        st.sidebar.button("Register", on_click=lambda: set_page('Register'), key="btn_register")
+        st.sidebar.button("Create an Account", on_click=lambda: set_page('Register'), key="btn_register")
 
     if st.session_state['page'] == 'Login':
         login_user()
@@ -190,6 +190,9 @@ def register_user():
                 st.success("User registered successfully! Please log in.")
             except Exception as e:
                 st.error(f"An error occurred while registering the user: {e}")
+    
+    if st.button("Have an account? Login Here"):
+        set_page('Login')
 
 def profile_management(username):
     st.subheader("Manage Your Profile")
