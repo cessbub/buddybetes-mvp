@@ -13,6 +13,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app'
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# Initialize the database
+create_tables()
+create_user_table()
+
 # Initialize session state keys
 def initialize_session_state():
     if 'authentication_status' not in st.session_state:
