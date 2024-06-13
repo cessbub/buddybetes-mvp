@@ -5,7 +5,6 @@ from email_notifications import send_email, schedule_email, run_scheduled_emails
 from passlib.context import CryptContext
 import pandas as pd
 import matplotlib.pyplot as plt
-import threading
 
 # set up the page configuration
 st.set_page_config(
@@ -96,16 +95,12 @@ def logout_user():
     st.success("You have been logged out successfully.")
 
 def login_user():
-    fields = {
-        'Form name': 'Login',
-        'Username': 'Username',
-        'Password': 'Password',
-        'Login': 'Login'
-    }
+    st.subheader("Login to Your Account")
 
-    username = st.text_input(fields['Username'])
-    password = st.text_input(fields['Password'], type="password")
-    submit_button = st.button(fields['Login'])
+    with st.form(key='login_form'):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submit_button = st.form_submit_button(label="Login")
 
     if submit_button:
         try:
