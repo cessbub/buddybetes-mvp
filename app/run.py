@@ -18,22 +18,25 @@ st.set_page_config(
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Initialize session state keys
-if 'authentication_status' not in st.session_state:
-    st.session_state['authentication_status'] = None
-if 'name' not in st.session_state:
-    st.session_state['name'] = None
-if 'username' not in st.session_state:
-    st.session_state['username'] = None
-if 'logout' not in st.session_state:
-    st.session_state['logout'] = False
-if 'page' not in st.session_state:
-    st.session_state['page'] = 'Analytics'  # Set default page to Analytics
-
 # Initialize the database
 create_tables()
 
+# Initialize session state keys
+def initialize_session_state():
+    if 'authentication_status' not in st.session_state:
+        st.session_state['authentication_status'] = None
+    if 'name' not in st.session_state:
+        st.session_state['name'] = None
+    if 'username' not in st.session_state:
+        st.session_state['username'] = None
+    if 'logout' not in st.session_state:
+        st.session_state['logout'] = False
+    if 'page' not in st.session_state:
+        st.session_state['page'] = 'Analytics'  # Set default page to Analytics
+
 def main():
+    initialize_session_state()
+    
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
     st.sidebar.divider()
@@ -319,7 +322,7 @@ def analytics_dashboard(username):
         st.write("## All Health Logs")
         st.dataframe(df.reset_index())  # Display the dataframe with the health logs
 
-
+# Ensure you run the scheduler thread correctly
 if __name__ == "__main__":
     email_scheduler_thread = threading.Thread(target=run_scheduled_emails, daemon=True)
     email_scheduler_thread.start()
