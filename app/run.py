@@ -29,13 +29,26 @@ def initialize_session_state():
 # Dialog function
 @st.experimental_dialog("Welcome to BuddyBetes MVP 🎉", width="large")
 def welcome_dialog():
-    st.write("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
-    st.markdown("### Important Information 📢")
-    st.markdown("- This is an **MVP** version, so some features might be limited or in progress.")
-    st.markdown("- Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅")
-    st.markdown("- For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️")
-    st.markdown("We appreciate your understanding and look forward to your feedback!")
+    st.markdown("""
+    <div style="text-align: center;">
+        <h2>👋 Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!</h2>
+    </div>
+    """, unsafe_allow_html=True)
     
+    st.markdown("### Important Information 📢")
+    st.markdown("1. **MVP Version**: This is an MVP version, so some features might be limited or in progress. 🛠️")
+    st.markdown("2. **Data Persistence**: Currently, the database is not persistent. This means that any data you enter (such as registering an account) will be lost if you close the browser. 😅")
+    st.markdown("3. **Best Experience**: For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️")
+    st.markdown("4. **Stay Updated**: You may check out our website at [buddybetes.com](https://buddybetes.com) and sign up for our waitlist to get updated on our progress! 🌐")
+    
+    st.markdown("<br>", unsafe_allow_html=True)  # Adding a line break for better spacing
+    
+    st.markdown("""
+    <div style="text-align: center;">
+        <button onclick="window.location.reload()">Okay</button>
+    </div>
+    """, unsafe_allow_html=True)
+
     if st.button("Okay"):
         st.session_state['dialog_shown'] = True
         st.experimental_rerun()
