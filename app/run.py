@@ -42,12 +42,6 @@ def welcome_dialog():
     st.markdown("4. **Stay Updated**: You may check out our website at [buddybetes.com](https://buddybetes.com) and sign up for our waitlist to get updated on our progress! 🌐")
     
     st.markdown("<br>", unsafe_allow_html=True)  # Adding a line break for better spacing
-    
-    st.markdown("""
-    <div style="text-align: center;">
-        <button onclick="window.location.reload()">Okay</button>
-    </div>
-    """, unsafe_allow_html=True)
 
     if st.button("Okay"):
         st.session_state['dialog_shown'] = True
