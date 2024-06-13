@@ -1,7 +1,6 @@
 import os
 import sys
 import streamlit as st
-import streamlit.components.v1 as components
 
 from auth import authenticate, get_user_info, update_user_info
 from database import create_connection, create_tables, create_user_table
@@ -24,35 +23,30 @@ def initialize_session_state():
         st.session_state['logout'] = False
     if 'page' not in st.session_state:
         st.session_state['page'] = 'Login'  # Set default page to Login
-    if 'warning_shown' not in st.session_state:
-        st.session_state['warning_shown'] = False
+    if 'dialog_shown' not in st.session_state:
+        st.session_state['dialog_shown'] = False
 
-# Function to show closable warning
-def show_closable_warning():
-    warning_code = """
-    <div id="closable-warning" style="padding: 10px; border: 1px solid #ffa500; background-color: #fff3cd; border-radius: 5px; position: relative;">
-        <strong>Warning!</strong> This is an MVP version, so some features might be limited or in progress. Currently, the database is not persistent, meaning any data you enter will be lost if you refresh the page or close the browser. For the best experience, please use a laptop/PC to view and interact with the application.
-        <button id="close-warning-button" style="position: absolute; top: 10px; right: 10px; background-color: #ffa500; border: none; color: white; border-radius: 3px; cursor: pointer;" onclick="closeWarning()">Okay</button>
-    </div>
-    <script>
-        function closeWarning() {
-            document.getElementById('closable-warning').style.display = 'none';
-            fetch('/?warning_shown=true').then(() => {
-                // Use Streamlit's experimental rerun to update the session state and refresh the page
-                window.location.reload();
-            });
-        }
-    </script>
-    """
-    components.html(warning_code, height=150)
+# Dialog function
+@st.experimental_dialog("Welcome to BuddyBetes MVP 🎉", width="large")
+def welcome_dialog():
+    st.write("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
+    st.markdown("### Important Information 📢")
+    st.markdown("- This is an **MVP** version, so some features might be limited or in progress.")
+    st.markdown("- Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅")
+    st.markdown("- For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️")
+    st.markdown("We appreciate your understanding and look forward to your feedback!")
+    
+    if st.button("Okay"):
+        st.session_state['dialog_shown'] = True
+        st.experimental_rerun()
 
 # Main function to run the app
 def main():
     initialize_session_state()
 
-    # Show closable warning if not shown already
-    if not st.session_state['warning_shown']:
-        show_closable_warning()
+    # Show dialog if not shown already
+    if not st.session_state['dialog_shown']:
+        welcome_dialog()
 
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
