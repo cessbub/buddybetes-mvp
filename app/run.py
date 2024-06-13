@@ -17,7 +17,11 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app'
 
 def show_modal():
     modal = Modal("Welcome Modal", key="welcome-modal", padding=20, max_width=744)
-    modal.open()
+    if st.session_state['modal_shown'] is False:
+        time.sleep(1)
+        modal.open()
+        st.session_state['modal_shown'] = True
+    
     if modal.is_open():
         with modal.container():
             st.write("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
@@ -41,6 +45,7 @@ def show_modal():
 
             if st.button("Okay"):
                 modal.close()
+                st.session_state['modal_shown'] = False
 
 # set up the page configuration
 st.set_page_config(
@@ -74,10 +79,8 @@ def initialize_session_state():
 def main():
     initialize_session_state()
 
-    # Show modal after 1 second delay if not shown already
-    if not st.session_state['modal_shown']:
-        show_modal()
-        st.session_state['modal_shown'] = True
+    # Show modal if not shown already
+    show_modal()
 
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
