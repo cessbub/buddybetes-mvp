@@ -127,7 +127,13 @@ def schedule_email(username, subject, content):
                 logger.info("Job already executed for %s at %s", username, reminder_time)
                 return
             job_executed[job_id] = now
-            send_email(username, subject, content)
+
+            try:
+                send_email(username, subject, content)
+                logger.info("Email sent for job: %s", job_id)
+            except Exception as e:
+                logger.error("Error in job execution for %s: %s", job_id, e)
+
             logger.info("Cancelling job after execution: %s", job_id)
             if job_id in scheduled_jobs:
                 schedule.cancel_job(scheduled_jobs[job_id])
@@ -142,7 +148,9 @@ def run_scheduled_emails():
     logger.info("Starting email scheduler...")
     while True:
         schedule.run_pending()
+        logger.info("Checking for pending jobs...")
         time.sleep(1)
+
 
 def start_scheduler_thread():
     thread = threading.Thread(target=run_scheduled_emails, daemon=True)
