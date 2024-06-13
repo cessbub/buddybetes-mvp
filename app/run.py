@@ -57,7 +57,6 @@ def main():
             st.session_state['page'] = 'Analytics'
     else:
         # Menu for non-logged-in users
-        st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
         st.sidebar.button("Login", on_click=lambda: set_page('Login'), key="btn_login")
         st.sidebar.button("Register", on_click=lambda: set_page('Register'), key="btn_register")
 
@@ -118,11 +117,14 @@ def login_user():
 
                 st.sidebar.title(f"Welcome {name}")
 
+                # Redirect to Analytics page after successful login
                 st.session_state['page'] = 'Analytics'
+                st.experimental_rerun()  # Refresh the page to navigate to Analytics
             else:
                 st.error('Incorrect username or password. Please try again.')
         except Exception as e:
             st.error(f"An error occurred during login: {e}")
+
 
 def log_data_form(username):
     st.subheader("Log Your Health Data")
@@ -139,7 +141,7 @@ def log_data_form(username):
         mood = st.selectbox("Mood", ["Happy", "Sad", "Neutral", "Anxious", "Stressed"])
         symptoms = st.text_area("Symptoms")
 
-        submit_button = st.form_submit_button(label="Submit", key="btn_submit_health_data")
+        submit_button = st.form_submit_button(label="Submit")
 
     if submit_button:
         try:
@@ -246,7 +248,7 @@ def settings(username):
             value=pd.to_datetime(reminder_time).time(), 
             key="reminder_time_input"
         )
-        submit_button = st.form_submit_button(label="Save Email Notification Reminder", key="btn_save_notification")
+        submit_button = st.form_submit_button(label="Save Email Notification Reminder")
 
     if submit_button:
         try:
