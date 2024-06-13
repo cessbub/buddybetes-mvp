@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_modal import Modal
 
 # Initialize session state keys
 if 'modal_shown' not in st.session_state:
@@ -7,27 +6,70 @@ if 'modal_shown' not in st.session_state:
 
 # Function to show modal
 def show_modal():
-    modal = Modal("Welcome Modal", key="welcome-modal", padding=20, max_width=744)
-    if not st.session_state["modal_shown"]:
-        modal.open()
-        st.session_state["modal_shown"] = True
-
-    if modal.is_open():
-        with modal.container():
-            st.write("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
-            st.markdown("### Important Information 📢")
-            st.markdown("- This is an **MVP** version, so some features might be limited or in progress.")
-            st.markdown("- Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅")
-            st.markdown("- For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️")
-            st.markdown("We appreciate your understanding and look forward to your feedback!")
-
-            if st.button("Okay"):
-                modal.close()
+    st.markdown(
+        """
+        <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+        }
+        .modal-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #009886;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        </style>
+        <div class="modal">
+            <div class="modal-content">
+                <h2>Welcome to BuddyBetes MVP 🎉</h2>
+                <p>Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!</p>
+                <h3>Important Information 📢</h3>
+                <ul>
+                    <li>This is an <strong>MVP</strong> version, so some features might be limited or in progress.</li>
+                    <li>Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅</li>
+                    <li>For the best experience, please use a <strong>laptop/PC</strong> to view and interact with the application. 🖥️</li>
+                </ul>
+                <p>We appreciate your understanding and look forward to your feedback!</p>
+                <button class="modal-button" onclick="close_modal()">Okay</button>
+            </div>
+        </div>
+        <script>
+        function close_modal() {
+            document.querySelector('.modal').style.display = 'none';
+            fetch('/?modal_shown=true');
+        }
+        </script>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # Main function to run the app
 def main():
     # Show modal if not shown already
-    show_modal()
+    if not st.session_state['modal_shown']:
+        show_modal()
+        st.session_state['modal_shown'] = True
 
     st.write("This is the main app content.")
 
