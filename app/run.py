@@ -66,6 +66,10 @@ def show_modal():
 
 # Main function to run the app
 def main():
+    # Initialize session state
+    if 'modal_shown' not in st.session_state:
+        st.session_state['modal_shown'] = False
+
     # Show modal if not shown already
     if not st.session_state['modal_shown']:
         show_modal()
