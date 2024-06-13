@@ -7,7 +7,7 @@ import schedule
 import time
 import yaml
 from datetime import datetime, timedelta
-import pytz  # Add this import to handle time zones
+import pytz  # Import pytz for timezone handling
 import streamlit as st
 from database import create_connection
 import logging
@@ -28,6 +28,9 @@ SMTP_PORT = 587
 scheduled_jobs = {}  # Dictionary to track scheduled jobs
 last_sent_times = {}  # Dictionary to track the last sent time for each user
 job_executed = {}  # Dictionary to track if the job was executed in the current minute
+
+# Define the PHT timezone
+PHT = pytz.timezone('Asia/Manila')
 
 def load_last_sent_times():
     global last_sent_times
@@ -60,9 +63,10 @@ def send_email(username, subject, content):
         user_email = c.fetchone()[0]
         conn.close()
 
-        now = datetime.now().replace(second=0, microsecond=0)
+        now = datetime.now(PHT).replace(second=0, microsecond=0)
         if username in last_sent_times:
             last_sent_time = datetime.fromisoformat(last_sent_times[username]).replace(second=0, microsecond=0)
+            last_sent_time = PHT.localize(last_sent_time)  # Ensure last sent time is in PHT
             logger.info("Last sent time for %s: %s", username, last_sent_time)
             logger.info("Current time: %s", now)
             if last_sent_time == now:
@@ -121,7 +125,7 @@ def schedule_email(username, subject, content):
         logger.info("Scheduling email for %s at %s", username, reminder_time)
 
         def job():
-            now = datetime.now(pytz.utc).replace(second=0, microsecond=0)  # Ensure the time is in UTC
+            now = datetime.now(PHT).replace(second=0, microsecond=0)
             logger.info("Executing job for %s at %s", username, now)
             if job_id in job_executed and job_executed[job_id] == now:
                 logger.info("Job already executed for %s at %s", username, reminder_time)
@@ -150,7 +154,7 @@ def run_scheduled_emails():
     logger.info("Starting email scheduler...")
     while True:
         schedule.run_pending()
-        now = datetime.now(pytz.utc)
+        now = datetime.now(PHT)
         logger.info("Current time: %s", now)
         logger.info("Checking for pending jobs...")
         time.sleep(1)
