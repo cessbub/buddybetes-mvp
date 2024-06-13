@@ -16,8 +16,42 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app'
 def show_modal():
     st.markdown(
         """
-        <div id="modal" style="position:fixed; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:rgba(0, 0, 0, 0.5); z-index:9999;">
-            <div style="max-width:90%; width:600px; background-color:white; padding:20px; border-radius:10px; position:relative;">
+        <style>
+        #modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: calc(100% - 300px); /* Adjust for sidebar width */
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+        #modal-content {
+            max-width: 90%;
+            width: 600px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+            margin-left: 300px; /* Adjust for sidebar width */
+        }
+        #modal-close-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #009886;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        </style>
+        <div id="modal">
+            <div id="modal-content">
                 <h2>Welcome to BuddyBetes MVP 🎉</h2>
                 <p>Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!</p>
                 <h3>Important Information 📢</h3>
@@ -27,7 +61,7 @@ def show_modal():
                     <li>For the best experience, please use a <strong>laptop/PC</strong> to view and interact with the application. 🖥️</li>
                 </ul>
                 <p>We appreciate your understanding and look forward to your feedback!</p>
-                <button onclick="document.getElementById('modal').style.display='none'" style="position:absolute; bottom:20px; right:20px; padding:10px 20px; background-color:#009886; color:white; border:none; border-radius:5px;">Okay</button>
+                <button id="modal-close-button" onclick="document.getElementById('modal').style.display='none'">Okay</button>
             </div>
         </div>
         """,
