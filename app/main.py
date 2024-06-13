@@ -1,5 +1,9 @@
-import streamlit as st
 import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+
+import streamlit as st
 from app.auth import authenticator
 from app.database import create_connection, create_tables
 from app.email_notifications import send_email, schedule_email, run_scheduled_emails, load_reminder_settings
