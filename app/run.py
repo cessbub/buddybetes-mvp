@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 from auth import authenticate, get_user_info, update_user_info
 from database import create_connection, create_tables, create_user_table
 from email_notifications import send_email, schedule_email, run_scheduled_emails, load_reminder_settings
@@ -107,31 +106,21 @@ def login_user():
 
     username = st.text_input(fields['Username'])
     password = st.text_input(fields['Password'], type="password")
-    submit_button = st.button(fields['Login'], key="btn_login_submit")
+    submit_button = st.button(fields['Login'])
 
     if submit_button:
         try:
-            conn = create_connection()
-            c = conn.cursor()
-            c.execute('SELECT * FROM users WHERE username = ?', (username,))
-            user = c.fetchone()
-            conn.close()
+            auth_status, name, user = authenticate(username, password)
+            if auth_status:
+                st.session_state['authentication_status'] = True
+                st.session_state['name'] = name
+                st.session_state['username'] = user
 
-            if user:
-                stored_password = user[3]  # Assuming password is in the 4th column
-                if pwd_context.verify(password, stored_password):
-                    st.session_state['authentication_status'] = True
-                    st.session_state['name'] = user[2]  # Assuming name is in the 3rd column
-                    st.session_state['username'] = user[0]  # Assuming username is in the 1st column
+                st.sidebar.title(f"Welcome {name}")
 
-                    st.sidebar.title(f"Welcome {user[2]}")
-                    authenticator.logout('Logout', 'sidebar')
-
-                    st.session_state['page'] = 'Analytics'
-                else:
-                    st.error('Incorrect password. Please try again.')
+                st.session_state['page'] = 'Analytics'
             else:
-                st.error('Username not found. Please register first.')
+                st.error('Incorrect username or password. Please try again.')
         except Exception as e:
             st.error(f"An error occurred during login: {e}")
 
@@ -212,7 +201,7 @@ def profile_management(username):
             name = st.text_input("Name", value=user_info[2])
             email_reminder = st.selectbox("Email Reminder", ["None", "Daily", "Weekly"], index=["None", "Daily", "Weekly"].index(user_info[4]))
             reminder_time = st.time_input("Reminder Time", value=pd.to_datetime(user_info[5]).time())
-            submit_button = st.form_submit_button(label="Update Profile", key="btn_update_profile")
+            submit_button = st.form_submit_button(label="Update Profile")
 
         if submit_button:
             try:
@@ -235,6 +224,9 @@ def profile_management(username):
                 st.error(f"An error occurred: {e}")
     else:
         st.error("User not found.")
+        
+        
+        
 
 def settings(username):
     st.subheader("Email Notification Reminder")

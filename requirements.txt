@@ -6,3 +6,4 @@ passlib
 pandas
 schedule
 pyyaml
+bcrypt==3.1.7
