@@ -1,5 +1,9 @@
 import streamlit as st
 
+# Check if 'modal_shown' already exists in session_state, if not, initialize it
+if 'modal_shown' not in st.session_state:
+    st.session_state['modal_shown'] = False
+
 # Function to show modal
 def show_modal():
     st.markdown(
@@ -63,12 +67,8 @@ def show_modal():
 
 # Main function to run the app
 def main():
-    # Initialize session state
-    if 'modal_shown' not in st.session_state:
-        st.session_state['modal_shown'] = False
-
     # Show modal if not shown already
-    if not st.session_state.get('modal_shown', False):
+    if not st.session_state['modal_shown']:
         show_modal()
         st.session_state['modal_shown'] = True
 
