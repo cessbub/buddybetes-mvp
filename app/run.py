@@ -105,42 +105,21 @@ def login_user():
         'Login': 'Login'
     }
 
-    username = st.text_input(fields['Username'])
-    password = st.text_input(fields['Password'], type="password")
-    submit_button = st.button(fields['Login'])
+    name, authentication_status, username = authenticator.login('main', fields=fields)
 
-    if submit_button:
-        try:
-            config_path = 'config.yaml'
-            if os.path.exists(config_path):
-                with open(config_path) as file:
-                    config = yaml.safe_load(file)
+    if authentication_status:
+        st.session_state['authentication_status'] = authentication_status
+        st.session_state['name'] = name
+        st.session_state['username'] = username
 
-                if username in config['credentials']['usernames']:
-                    user_info = config['credentials']['usernames'][username]
-                    stored_password = user_info['password']
+        st.sidebar.title(f"Welcome {name}")
+        authenticator.logout('Logout', 'sidebar')
 
-                    if pwd_context.verify(password, stored_password):
-                        st.session_state['authentication_status'] = True
-                        st.session_state['name'] = user_info['name']
-                        st.session_state['username'] = username
-
-                        st.sidebar.title(f"Welcome {user_info['name']}")
-                        authenticator.logout('Logout', 'sidebar')
-
-                        st.session_state['page'] = 'Analytics'
-                    else:
-                        st.error('Incorrect password. Please try again.')
-                else:
-                    st.error('Username not found. Please register first.')
-            else:
-                st.error(f"Configuration file not found at {config_path}")
-        except Exception as e:
-            st.error(f"An error occurred during login: {e}")
-            
-            
-            
-            
+        st.session_state['page'] = 'Analytics'
+    elif authentication_status == False:
+        st.error('Username/password is incorrect')
+    elif authentication_status == None:
+        st.warning('Please enter your username and password')
 
 def log_data_form(username):
     st.subheader("Log Your Health Data")
