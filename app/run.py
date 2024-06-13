@@ -76,7 +76,6 @@ def main():
 
     # Show modal after 1 second delay if not shown already
     if not st.session_state['modal_shown']:
-        time.sleep(1)
         show_modal()
         st.session_state['modal_shown'] = True
 
