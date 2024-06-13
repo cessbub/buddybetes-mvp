@@ -1,8 +1,7 @@
 import os
 import sys
-import time  # Make sure to import the time module
-
 import streamlit as st
+import streamlit.components.v1 as components
 
 from auth import authenticate, get_user_info, update_user_info
 from database import create_connection, create_tables, create_user_table
@@ -12,75 +11,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
-
-def show_modal():
-    st.markdown(
-        """
-        <style>
-        #modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: calc(100% - 300px); /* Adjust for sidebar width */
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-        }
-        #modal-content {
-            max-width: 90%;
-            width: 600px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            position: relative;
-            margin-left: 300px; /* Adjust for sidebar width */
-        }
-        #modal-close-button {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background-color: #009886;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        </style>
-        <div id="modal">
-            <div id="modal-content">
-                <h2>Welcome to BuddyBetes MVP 🎉</h2>
-                <p>Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!</p>
-                <h3>Important Information 📢</h3>
-                <ul>
-                    <li>This is an <strong>MVP</strong> version, so some features might be limited or in progress.</li>
-                    <li>Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅</li>
-                    <li>For the best experience, please use a <strong>laptop/PC</strong> to view and interact with the application. 🖥️</li>
-                </ul>
-                <p>We appreciate your understanding and look forward to your feedback!</p>
-                <button id="modal-close-button" onclick="document.getElementById('modal').style.display='none'">Okay</button>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-# set up the page configuration
-st.set_page_config(
-    page_title="BuddyBetes",
-    page_icon="images/page_icon.png",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-# Initialize the database
-create_tables()
-create_user_table()
 
 # Initialize session state keys
 def initialize_session_state():
@@ -97,12 +27,38 @@ def initialize_session_state():
     if 'modal_shown' not in st.session_state:
         st.session_state['modal_shown'] = False
 
+# Function to show modal
+def show_modal():
+    modal_code = """
+    <div id="modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.5); z-index: 9999;">
+        <div style="max-width: 90%; width: 600px; background-color: white; padding: 20px; border-radius: 10px; position: relative;">
+            <h2>Welcome to BuddyBetes MVP 🎉</h2>
+            <p>Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!</p>
+            <h3>Important Information 📢</h3>
+            <ul>
+                <li>This is an <strong>MVP</strong> version, so some features might be limited or in progress.</li>
+                <li>Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅</li>
+                <li>For the best experience, please use a <strong>laptop/PC</strong> to view and interact with the application. 🖥️</li>
+            </ul>
+            <p>We appreciate your understanding and look forward to your feedback!</p>
+            <button id="modal-close-button" style="position: absolute; bottom: 20px; right: 20px; padding: 10px 20px; background-color: #009886; color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="close_modal()">Okay</button>
+        </div>
+    </div>
+    <script>
+        function close_modal() {
+            document.getElementById('modal').style.display = 'none';
+            fetch('/?modal_shown=true');
+        }
+    </script>
+    """
+    components.html(modal_code, height=600)
+
+# Main function to run the app
 def main():
     initialize_session_state()
 
-    # Show modal after 1 second delay if not shown already
+    # Show modal if not shown already
     if not st.session_state['modal_shown']:
-        time.sleep(1)
         show_modal()
         st.session_state['modal_shown'] = True
 
