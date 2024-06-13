@@ -29,3 +29,18 @@ def create_tables():
     conn.commit()
     conn.close()
     print("Tables created successfully.")
+    
+    
+def create_user_table():
+    conn = create_connection()
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            username TEXT PRIMARY KEY,
+            email TEXT NOT NULL,
+            name TEXT NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()

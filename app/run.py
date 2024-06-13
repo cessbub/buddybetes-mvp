@@ -1,10 +1,9 @@
 import streamlit as st
 import os
-from auth import authenticator
-from database import create_connection, create_tables
+from auth import authenticate, get_user_info, update_user_info
+from database import create_connection, create_tables, create_user_table
 from email_notifications import send_email, schedule_email, run_scheduled_emails, load_reminder_settings
 from passlib.context import CryptContext
-import yaml
 import pandas as pd
 import matplotlib.pyplot as plt
 import threading
@@ -21,6 +20,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Initialize the database
 create_tables()
+create_user_table()
 
 # Initialize session state keys
 def initialize_session_state():
@@ -97,21 +97,6 @@ def logout_user():
     st.session_state['page'] = 'Login'
     st.success("You have been logged out successfully.")
 
-def create_user_table():
-    conn = create_connection()
-    c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            username TEXT PRIMARY KEY,
-            email TEXT NOT NULL,
-            name TEXT NOT NULL,
-            password TEXT NOT NULL
-        )
-    ''')
-    conn.commit()
-    conn.close()
-
-
 def login_user():
     fields = {
         'Form name': 'Login',
@@ -149,9 +134,6 @@ def login_user():
                 st.error('Username not found. Please register first.')
         except Exception as e:
             st.error(f"An error occurred during login: {e}")
-
-
-
 
 def log_data_form(username):
     st.subheader("Log Your Health Data")
@@ -219,48 +201,38 @@ def register_user():
             except Exception as e:
                 st.error(f"An error occurred while registering the user: {e}")
 
-
-
-
-
 def profile_management(username):
     st.subheader("Manage Your Profile")
 
-    with open('config.yaml') as file:
-        config = yaml.safe_load(file)
+    user_info = get_user_info(username)
+    if user_info:
+        with st.form(key='profile_form'):
+            new_username = st.text_input("Username", value=user_info[0])
+            email = st.text_input("Email", value=user_info[1])
+            name = st.text_input("Name", value=user_info[2])
+            submit_button = st.form_submit_button(label="Update Profile")
 
-    user_info = config['credentials']['usernames'][username]
+        if submit_button:
+            try:
+                if new_username != username:
+                    # Update username in the database
+                    conn = create_connection()
+                    c = conn.cursor()
+                    c.execute('''
+                        UPDATE health_data
+                        SET user_id = ?
+                        WHERE user_id = ?
+                    ''', (new_username, username))
+                    conn.commit()
+                    conn.close()
 
-    with st.form(key='profile_form'):
-        new_username = st.text_input("Username", value=username)
-        email = st.text_input("Email", value=user_info['email'])
-        name = st.text_input("Name", value=user_info['name'])
-        submit_button = st.form_submit_button(label="Update Profile")
-
-    if submit_button:
-        if new_username != username:
-            # Update username in the database
-            conn = create_connection()
-            c = conn.cursor()
-            c.execute('''
-                UPDATE health_data
-                SET user_id = ?
-                WHERE user_id = ?
-            ''', (new_username, username))
-            conn.commit()
-            conn.close()
-
-            # Update username in the config
-            config['credentials']['usernames'][new_username] = config['credentials']['usernames'].pop(username)
-            st.session_state['username'] = new_username
-
-        config['credentials']['usernames'][new_username]['email'] = email
-        config['credentials']['usernames'][new_username]['name'] = name
-
-        with open('config.yaml', 'w') as file:
-            yaml.safe_dump(config, file)
-
-        st.success("Profile updated successfully!")
+                update_user_info(username, new_username, email, name)
+                st.session_state['username'] = new_username
+                st.success("Profile updated successfully!")
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+    else:
+        st.error("User not found.")
 
 def settings(username):
     st.subheader("Email Notification Reminder")
