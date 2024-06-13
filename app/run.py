@@ -3,8 +3,6 @@ import sys
 import time  # Make sure to import the time module
 
 import streamlit as st
-from streamlit_modal import Modal
-import streamlit.components.v1 as components
 
 from auth import authenticate, get_user_info, update_user_info
 from database import create_connection, create_tables, create_user_table
@@ -16,31 +14,59 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
 
 def show_modal():
-    modal = Modal("Welcome Modal", key="welcome-modal", padding=20, max_width=744)
-    modal.open()
-    if modal.is_open():
-        with modal.container():
-            st.write("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
-            st.markdown("### Important Information 📢")
-            st.markdown("- This is an **MVP** version, so some features might be limited or in progress.")
-            st.markdown("- Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅")
-            st.markdown("- For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️")
-            st.markdown("We appreciate your understanding and look forward to your feedback!")
-
-            st.write("Some fancy text")
-            value = st.checkbox("Check me")
-            st.write(f"Checkbox checked: {value}")
-
-            html_string = '''
-            <h1>HTML string in RED</h1>
-            <script language="javascript">
-              document.querySelector("h1").style.color = "red";
-            </script>
-            '''
-            components.html(html_string)
-
-            if st.button("Okay"):
-                modal.close()
+    st.markdown(
+        """
+        <style>
+        #modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: calc(100% - 300px); /* Adjust for sidebar width */
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+        #modal-content {
+            max-width: 90%;
+            width: 600px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+            margin-left: 300px; /* Adjust for sidebar width */
+        }
+        #modal-close-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #009886;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        </style>
+        <div id="modal">
+            <div id="modal-content">
+                <h2>Welcome to BuddyBetes MVP 🎉</h2>
+                <p>Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!</p>
+                <h3>Important Information 📢</h3>
+                <ul>
+                    <li>This is an <strong>MVP</strong> version, so some features might be limited or in progress.</li>
+                    <li>Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅</li>
+                    <li>For the best experience, please use a <strong>laptop/PC</strong> to view and interact with the application. 🖥️</li>
+                </ul>
+                <p>We appreciate your understanding and look forward to your feedback!</p>
+                <button id="modal-close-button" onclick="document.getElementById('modal').style.display='none'">Okay</button>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # set up the page configuration
 st.set_page_config(
@@ -76,6 +102,7 @@ def main():
 
     # Show modal after 1 second delay if not shown already
     if not st.session_state['modal_shown']:
+        time.sleep(1)
         show_modal()
         st.session_state['modal_shown'] = True
 
