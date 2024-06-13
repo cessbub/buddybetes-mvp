@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 from auth import authenticator
 from database import create_connection, create_tables
 from email_notifications import send_email, schedule_email, run_scheduled_emails, load_reminder_settings
@@ -179,22 +180,24 @@ def register_user():
                 'password': hashed_password
             }
 
-            try:
-                # Load existing config file
-                with open('config.yaml') as file:
+            # Log the current working directory and contents for debugging
+            st.write(f"Current working directory: {os.getcwd()}")
+            st.write("Contents of the current directory:")
+            st.write(os.listdir())
+
+            config_path = 'config.yaml'
+            if os.path.exists(config_path):
+                with open(config_path) as file:
                     config = yaml.safe_load(file)
 
-                # Add new user
                 config['credentials']['usernames'][username] = new_user
 
-                # Save updated config file
-                with open('config.yaml', 'w') as file:
+                with open(config_path, 'w') as file:
                     yaml.safe_dump(config, file)
 
                 st.success("User registered successfully! Please log in.")
-
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
+            else:
+                st.error(f"Configuration file not found at {config_path}")
 
 def profile_management(username):
     st.subheader("Manage Your Profile")
