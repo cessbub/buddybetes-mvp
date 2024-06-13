@@ -47,8 +47,10 @@ def show_modal():
     <script>
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
-            // Use fetch to inform Streamlit to update session state
-            fetch('/?modal_shown=true');
+            fetch('/?modal_shown=true').then(() => {
+                // Use Streamlit's experimental rerun to update the session state and refresh the page
+                window.location.reload();
+            });
         }
     </script>
     """
@@ -61,7 +63,6 @@ def main():
     # Show modal if not shown already
     if not st.session_state['modal_shown']:
         show_modal()
-        st.session_state['modal_shown'] = True
 
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
