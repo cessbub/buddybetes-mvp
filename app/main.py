@@ -1,6 +1,8 @@
-import sys
 import os
-from app import app
+import sys
+
+# Ensure that the 'app' directory is in the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
 
 import streamlit as st
 from app.auth import authenticator
