@@ -6,4 +6,3 @@ passlib
 pandas
 schedule
 pyyaml
-smtplib
