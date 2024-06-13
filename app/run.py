@@ -3,7 +3,6 @@ import sys
 import time  # Make sure to import the time module
 
 import streamlit as st
-import streamlit_modal as modal
 
 from auth import authenticate, get_user_info, update_user_info
 from database import create_connection, create_tables, create_user_table
@@ -15,15 +14,19 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
 
 def show_modal():
-    my_modal = modal.Modal(key="welcome_modal", title="Welcome Modal")
-    if my_modal.show():
-        st.markdown("# Welcome to BuddyBetes MVP 🎉")
-        st.markdown("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
-        st.markdown("### Important Information 📢")
-        st.markdown("- This is an **MVP** version, so some features might be limited or in progress.")
-        st.markdown("- Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅")
-        st.markdown("- For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️")
-        st.markdown("We appreciate your understanding and look forward to your feedback!")
+    alert = st.alert(
+        "Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!\n\n"
+        "### Important Information 📢\n"
+        "- This is an **MVP** version, so some features might be limited or in progress.\n"
+        "- Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅\n"
+        "- For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️\n"
+        "We appreciate your understanding and look forward to your feedback!",
+        title="Welcome to BuddyBetes MVP 🎉",
+        type="info",
+        icon="ℹ️",
+        can_be_closed=True
+    )
+    alert.open()
 
 # set up the page configuration
 st.set_page_config(
