@@ -24,45 +24,35 @@ def initialize_session_state():
         st.session_state['logout'] = False
     if 'page' not in st.session_state:
         st.session_state['page'] = 'Login'  # Set default page to Login
-    if 'modal_shown' not in st.session_state:
-        st.session_state['modal_shown'] = False
+    if 'warning_shown' not in st.session_state:
+        st.session_state['warning_shown'] = False
 
-# Function to show modal
-def show_modal():
-    modal_code = """
-    <div id="modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: rgba(0, 0, 0, 0.5); z-index: 9999;">
-        <div style="max-width: 90%; width: 600px; background-color: white; padding: 20px; border-radius: 10px; position: relative;">
-            <h2>Welcome to BuddyBetes MVP 🎉</h2>
-            <p>Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!</p>
-            <h3>Important Information 📢</h3>
-            <ul>
-                <li>This is an <strong>MVP</strong> version, so some features might be limited or in progress.</li>
-                <li>Currently, the database is not persistent. This means that any data you enter will be lost if you refresh the page or close the browser. 😅</li>
-                <li>For the best experience, please use a <strong>laptop/PC</strong> to view and interact with the application. 🖥️</li>
-            </ul>
-            <p>We appreciate your understanding and look forward to your feedback!</p>
-            <button id="modal-close-button" style="position: absolute; bottom: 20px; right: 20px; padding: 10px 20px; background-color: #009886; color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="closeModal()">Okay</button>
-        </div>
+# Function to show closable warning
+def show_closable_warning():
+    warning_code = """
+    <div id="closable-warning" style="padding: 10px; border: 1px solid #ffa500; background-color: #fff3cd; border-radius: 5px; position: relative;">
+        <strong>Warning!</strong> This is an MVP version, so some features might be limited or in progress. Currently, the database is not persistent, meaning any data you enter will be lost if you refresh the page or close the browser. For the best experience, please use a laptop/PC to view and interact with the application.
+        <button id="close-warning-button" style="position: absolute; top: 10px; right: 10px; background-color: #ffa500; border: none; color: white; border-radius: 3px; cursor: pointer;" onclick="closeWarning()">Okay</button>
     </div>
     <script>
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-            fetch('/?modal_shown=true').then(() => {
+        function closeWarning() {
+            document.getElementById('closable-warning').style.display = 'none';
+            fetch('/?warning_shown=true').then(() => {
                 // Use Streamlit's experimental rerun to update the session state and refresh the page
                 window.location.reload();
             });
         }
     </script>
     """
-    components.html(modal_code, height=700)
+    components.html(warning_code, height=150)
 
 # Main function to run the app
 def main():
     initialize_session_state()
 
-    # Show modal if not shown already
-    if not st.session_state['modal_shown']:
-        show_modal()
+    # Show closable warning if not shown already
+    if not st.session_state['warning_shown']:
+        show_closable_warning()
 
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
