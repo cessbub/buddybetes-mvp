@@ -41,17 +41,18 @@ def show_modal():
                 <li>For the best experience, please use a <strong>laptop/PC</strong> to view and interact with the application. 🖥️</li>
             </ul>
             <p>We appreciate your understanding and look forward to your feedback!</p>
-            <button id="modal-close-button" style="position: absolute; bottom: 20px; right: 20px; padding: 10px 20px; background-color: #009886; color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="close_modal()">Okay</button>
+            <button id="modal-close-button" style="position: absolute; bottom: 20px; right: 20px; padding: 10px 20px; background-color: #009886; color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="closeModal()">Okay</button>
         </div>
     </div>
     <script>
-        function close_modal() {
+        function closeModal() {
             document.getElementById('modal').style.display = 'none';
+            // Use fetch to inform Streamlit to update session state
             fetch('/?modal_shown=true');
         }
     </script>
     """
-    components.html(modal_code, height=600)
+    components.html(modal_code, height=700)
 
 # Main function to run the app
 def main():
