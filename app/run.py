@@ -1,8 +1,10 @@
 import os
 import sys
+import time  # Make sure to import the time module
 
 import streamlit as st
 from streamlit_modal import Modal
+import streamlit.components.v1 as components
 
 from auth import authenticate, get_user_info, update_user_info
 from database import create_connection, create_tables, create_user_table
@@ -13,13 +15,9 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
 
-# Function to show modal
 def show_modal():
     modal = Modal("Welcome Modal", key="welcome-modal", padding=20, max_width=744)
-    if st.session_state.get("modal_shown") is False:
-        modal.open()
-        st.session_state["modal_shown"] = True
-
+    modal.open()
     if modal.is_open():
         with modal.container():
             st.write("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
@@ -29,10 +27,22 @@ def show_modal():
             st.markdown("- For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️")
             st.markdown("We appreciate your understanding and look forward to your feedback!")
 
+            st.write("Some fancy text")
+            value = st.checkbox("Check me")
+            st.write(f"Checkbox checked: {value}")
+
+            html_string = '''
+            <h1>HTML string in RED</h1>
+            <script language="javascript">
+              document.querySelector("h1").style.color = "red";
+            </script>
+            '''
+            components.html(html_string)
+
             if st.button("Okay"):
                 modal.close()
 
-# Set up the page configuration
+# set up the page configuration
 st.set_page_config(
     page_title="BuddyBetes",
     page_icon="images/page_icon.png",
@@ -64,8 +74,10 @@ def initialize_session_state():
 def main():
     initialize_session_state()
 
-    # Show modal if not shown already
-    show_modal()
+    # Show modal after 1 second delay if not shown already
+    if not st.session_state['modal_shown']:
+        show_modal()
+        st.session_state['modal_shown'] = True
 
     st.sidebar.image("images/buddybetes_logo.png", use_column_width=True)
     st.sidebar.markdown("This is BuddyBetes, your best friend in diabetes care.")
