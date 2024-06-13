@@ -70,8 +70,6 @@ def initialize_session_state():
         st.session_state['logout'] = False
     if 'page' not in st.session_state:
         st.session_state['page'] = 'Login'  # Set default page to Login
-    if 'modal_shown' not in st.session_state:
-        st.session_state['modal_shown'] = False
 
 def main():
     initialize_session_state()
@@ -135,6 +133,7 @@ def logout_user():
     st.success("You have been logged out successfully.")
 
 def login_user():
+    
     show_modal()
     
     st.subheader("Login to Your Account")
