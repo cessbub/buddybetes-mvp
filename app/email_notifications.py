@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 # Configure your email credentials
 EMAIL_ADDRESS = st.secrets["general"]["EMAIL_ADDRESS"]
 EMAIL_PASSWORD = st.secrets["general"]["EMAIL_PASSWORD"]
-SMTP_SERVER = "smtp.gmail.com"  # Update this to your SMTP server
-SMTP_PORT = 587  # Update this to your SMTP port if necessary
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
 
 scheduled_jobs = {}  # Dictionary to track scheduled jobs
 last_sent_times = {}  # Dictionary to track the last sent time for each user
@@ -47,7 +47,7 @@ def send_email(username, subject, content):
         user_email = c.fetchone()[0]
         conn.close()
 
-        now = datetime.now().replace(second=0, microsecond=0)  # Remove seconds and microseconds
+        now = datetime.now().replace(second=0, microsecond=0)
         if username in last_sent_times:
             last_sent_time = datetime.fromisoformat(last_sent_times[username]).replace(second=0, microsecond=0)
             logger.info("Last sent time for %s: %s", username, last_sent_time)
@@ -66,7 +66,7 @@ def send_email(username, subject, content):
         msg.attach(MIMEText(content, 'plain'))
 
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()  # Enable TLS
+        server.starttls()
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         text = msg.as_string()
         server.sendmail(EMAIL_ADDRESS, user_email, text)
@@ -74,7 +74,6 @@ def send_email(username, subject, content):
 
         logger.info("Email sent to %s with subject: %s", user_email, subject)
 
-        # Update the last sent time
         last_sent_times[username] = now.isoformat()
         save_last_sent_times()
     except Exception as e:
@@ -106,6 +105,7 @@ def schedule_email(username, subject, content):
 
         def job():
             now = datetime.now().replace(second=0, microsecond=0)
+            logger.info("Executing job for %s at %s", username, now)
             if job_id in job_executed and job_executed[job_id] == now:
                 logger.info("Job already executed for %s at %s", username, reminder_time)
                 return
