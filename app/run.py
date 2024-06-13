@@ -1,6 +1,6 @@
 import os
 import sys
-import time
+import time  # Make sure to import the time module
 
 import streamlit as st
 import streamlit_modal as modal
@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
 
 def show_modal():
-    with modal.container("Welcome Modal", size="large", close_on_click=True):
+    with modal.open("Welcome Modal"):
         st.markdown("# Welcome to BuddyBetes MVP 🎉")
         st.markdown("Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
         st.markdown("### Important Information 📢")
