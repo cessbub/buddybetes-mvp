@@ -138,21 +138,24 @@ def log_data_form(username):
         submit_button = st.form_submit_button(label="Submit")
 
     if submit_button:
-        conn = create_connection()
-        c = conn.cursor()
-        c.execute('''
-            INSERT INTO health_data (user_id, date, time, glucose_level, bp_systolic, bp_diastolic, food_intake, mood, symptoms, meal_context)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (username, date.strftime('%Y-%m-%d'), time.strftime('%H:%M:%S'), glucose_level, bp_systolic, bp_diastolic, food_intake, mood, symptoms, meal_context))
-        conn.commit()
+        try:
+            conn = create_connection()
+            c = conn.cursor()
+            c.execute('''
+                INSERT INTO health_data (user_id, date, time, glucose_level, bp_systolic, bp_diastolic, food_intake, mood, symptoms, meal_context)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (username, date.strftime('%Y-%m-%d'), time.strftime('%H:%M:%S'), glucose_level, bp_systolic, bp_diastolic, food_intake, mood, symptoms, meal_context))
+            conn.commit()
 
-        # Debug statement: Check number of rows in health_data table
-        c.execute('SELECT COUNT(*) FROM health_data')
-        count = c.fetchone()[0]
-        st.write(f"Total health data entries: {count}")
+            # Debug statement: Check number of rows in health_data table
+            c.execute('SELECT COUNT(*) FROM health_data')
+            count = c.fetchone()[0]
+            st.write(f"Total health data entries: {count}")
 
-        conn.close()
-        st.success("Health data logged successfully!")
+            conn.close()
+            st.success("Health data logged successfully!")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
 def register_user():
     st.subheader("Create New Account")
@@ -176,15 +179,22 @@ def register_user():
                 'password': hashed_password
             }
 
-            with open('config.yaml') as file:
-                config = yaml.safe_load(file)
+            try:
+                # Load existing config file
+                with open('config.yaml') as file:
+                    config = yaml.safe_load(file)
 
-            config['credentials']['usernames'][username] = new_user
+                # Add new user
+                config['credentials']['usernames'][username] = new_user
 
-            with open('config.yaml', 'w') as file:
-                yaml.safe_dump(config, file)
+                # Save updated config file
+                with open('config.yaml', 'w') as file:
+                    yaml.safe_dump(config, file)
 
-            st.success("User registered successfully! Please log in.")
+                st.success("User registered successfully! Please log in.")
+
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
 
 def profile_management(username):
     st.subheader("Manage Your Profile")
