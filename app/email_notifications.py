@@ -127,7 +127,7 @@ def run_scheduled_emails():
         schedule.run_pending()
         time.sleep(1)
 
-if __name__ == "__main__":
-    # For testing, ensure to schedule email
-    schedule_email('user1', '[BUDDYBETES REMINDER] Reminder to log your Health Data!', 'This is your BuddyBetes reminder to log your health data.')
-    run_scheduled_emails()
+def start_scheduler_thread():
+    thread = threading.Thread(target=run_scheduled_emails, daemon=True)
+    thread.start()
+

@@ -1,7 +1,7 @@
 import streamlit as st
 from auth import authenticate, get_user_info, update_user_info
 from database import create_connection, create_tables, create_user_table
-from email_notifications import send_email, schedule_email, run_scheduled_emails, load_reminder_settings
+from email_notifications import send_email, schedule_email, run_scheduled_emails, load_reminder_settings, start_scheduler_thread
 from passlib.context import CryptContext
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -330,8 +330,10 @@ def analytics_dashboard(username):
         st.write("## All Health Logs")
         st.dataframe(df.reset_index())  # Display the dataframe with the health logs
 
-# Ensure you run the scheduler thread correctly
+
+
+
+start_scheduler_thread()
+
 if __name__ == "__main__":
-    email_scheduler_thread = threading.Thread(target=run_scheduled_emails, daemon=True)
-    email_scheduler_thread.start()
     main()
