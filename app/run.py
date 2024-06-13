@@ -181,7 +181,7 @@ def register_user():
         name = st.text_input("Name")
         password = st.text_input("Password", type="password")
         confirm_password = st.text_input("Confirm Password", type="password")
-        submit_button = st.form_submit_button(label="Register", key="btn_register_submit")
+        submit_button = st.form_submit_button(label="Register")
 
     if submit_button:
         if password != confirm_password:
