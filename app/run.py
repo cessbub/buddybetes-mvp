@@ -120,7 +120,8 @@ def login_user():
         except Exception as e:
             st.error(f"An error occurred during login: {e}")
 
-    st.markdown("<a href='#' onclick='window.location.href = window.location.origin + window.location.pathname + \"?page=Register\";'>Create new account here</a>", unsafe_allow_html=True)
+    if st.button("Create new account here"):
+        set_page('Register')
 
 
 
