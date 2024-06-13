@@ -29,12 +29,12 @@ def initialize_session_state():
 # Dialog function
 @st.experimental_dialog("Welcome to BuddyBetes MVP 🎉", width="large")
 def welcome_dialog():
-    st.markdown("👋 Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!")
+    st.markdown("**👋 Hi there! Thank you for trying out the MVP of BuddyBetes. We're excited to have you here!**")
     st.markdown("### Important Information 📢")
     st.markdown("1. **MVP Version**: This is an MVP version, so some features might be limited or in progress. 🛠️")
     st.markdown("2. **Data Persistence**: Currently, the database is not persistent. This means that any data you enter (such as registering an account) will be lost if you close the browser. 😅")
     st.markdown("3. **Best Experience**: For the best experience, please use a **laptop/PC** to view and interact with the application. 🖥️")
-    st.markdown("4. **Stay Updated**: You may check out our website at [buddybetes.com](https://buddybetes.com) and sign up for our waitlist to get updated on our progress! 🌐")
+    st.markdown("4. **Stay Updated**: You may check out our website at [buddybetes.com](https://buddybetes.com) and **sign up for our newsletter** to get updated on our progress! 🌐")
     
     st.markdown("<br>", unsafe_allow_html=True)  # Adding a line break for better spacing
 
