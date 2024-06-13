@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 # Initialize session state keys
 def initialize_session_state():
     if 'authentication_status' not in st.session_state:
