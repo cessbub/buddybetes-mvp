@@ -1,33 +1,30 @@
 import os
-import sys
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import schedule
 import time
 import yaml
-from datetime import datetime, timedelta
-import pytz  # Import pytz for timezone handling
+from datetime import datetime
+import pytz
 import streamlit as st
 from database import create_connection
 import logging
 import threading
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'app')))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configure your email credentials
-EMAIL_ADDRESS = st.secrets["general"]["EMAIL_ADDRESS"]
-EMAIL_PASSWORD = st.secrets["general"]["EMAIL_PASSWORD"]
+EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
-scheduled_jobs = {}  # Dictionary to track scheduled jobs
-last_sent_times = {}  # Dictionary to track the last sent time for each user
-job_executed = {}  # Dictionary to track if the job was executed in the current minute
+scheduled_jobs = {}
+last_sent_times = {}
+job_executed = {}
 
 # Define the PHT timezone
 PHT = pytz.timezone('Asia/Manila')
