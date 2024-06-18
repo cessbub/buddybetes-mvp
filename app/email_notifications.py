@@ -93,6 +93,7 @@ def send_email(username, subject, content):
     except Exception as e:
         logger.error("Failed to send email: %s", e)
 
+
 def load_reminder_settings(username):
     try:
         conn = create_connection()
@@ -133,6 +134,7 @@ def schedule_email(username, subject, content):
             job_executed[job_id] = now
 
             try:
+                logger.info(f"Calling send_email for {username}")
                 send_email(username, subject, content)
                 logger.info(f"Email sent for job: {job_id}")
             except Exception as e:
@@ -148,6 +150,7 @@ def schedule_email(username, subject, content):
         logger.info(f"Job scheduled: {job_id}")
     else:
         logger.info(f"No email reminder set for {username}")
+
 
 def run_scheduled_emails():
     load_last_sent_times()
