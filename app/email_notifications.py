@@ -123,28 +123,31 @@ def schedule_email(username, subject, content):
 
         def job():
             now = datetime.now(PHT).replace(second=0, microsecond=0)
-            logger.info("Executing job for %s at %s", username, now)
+            logger.info(f"Executing job for {username} at {now}")
+            logger.info(f"Job ID: {job_id}, Scheduled for: {reminder_time}")
+
             if job_id in job_executed and job_executed[job_id] == now:
-                logger.info("Job already executed for %s at %s", username, reminder_time)
+                logger.info(f"Job already executed for {username} at {reminder_time}")
                 return
+
             job_executed[job_id] = now
 
             try:
                 send_email(username, subject, content)
-                logger.info("Email sent for job: %s", job_id)
+                logger.info(f"Email sent for job: {job_id}")
             except Exception as e:
-                logger.error("Error in job execution for %s: %s", job_id, e)
+                logger.error(f"Error in job execution for {job_id}: {e}")
 
-            logger.info("Cancelling job after execution: %s", job_id)
+            logger.info(f"Cancelling job after execution: {job_id}")
             if job_id in scheduled_jobs:
                 schedule.cancel_job(scheduled_jobs[job_id])
                 del scheduled_jobs[job_id]
 
         job = schedule.every().day.at(reminder_time).do(job)
         scheduled_jobs[job_id] = job
-        logger.info("Job scheduled: %s", job_id)
+        logger.info(f"Job scheduled: {job_id}")
     else:
-        logger.info("No email reminder set for %s", username)
+        logger.info(f"No email reminder set for {username}")
 
 def run_scheduled_emails():
     load_last_sent_times()
@@ -152,7 +155,7 @@ def run_scheduled_emails():
     while True:
         schedule.run_pending()
         now = datetime.now(PHT)
-        logger.info("Current time: %s", now)
+        logger.info(f"Current time: {now}")
         logger.info("Checking for pending jobs...")
         for job in schedule.jobs:
             logger.info(f"Pending job: {job}")
