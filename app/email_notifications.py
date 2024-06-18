@@ -1,56 +1,27 @@
-import os
+import streamlit as st
+import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import schedule
-import time
-import yaml
 from datetime import datetime
 import pytz
-import streamlit as st
 from database import create_connection
-import logging
-import threading
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Configure your email credentials
-EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
-EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
-SMTP_SERVER = "smtp.gmail.com"
+# Constants for email configuration
+EMAIL_ADDRESS = st.secrets["general"]["EMAIL_ADDRESS"]
+EMAIL_PASSWORD = st.secrets["general"]["EMAIL_PASSWORD"]
+SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 
-scheduled_jobs = {}
+# Setting up logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+# Dictionary to store the last sent times
 last_sent_times = {}
-job_executed = {}
 
-# Define the PHT timezone
+# Timezone setup
 PHT = pytz.timezone('Asia/Manila')
-
-def load_last_sent_times():
-    global last_sent_times
-    try:
-        with open('last_sent_times.yaml', 'r') as file:
-            last_sent_times = yaml.safe_load(file)
-        if last_sent_times is None:
-            last_sent_times = {}
-        logger.info("Loaded last_sent_times: %s", last_sent_times)
-    except FileNotFoundError:
-        last_sent_times = {}
-        logger.warning("last_sent_times.yaml file not found. Initializing empty dictionary.")
-    except Exception as e:
-        logger.error("Error loading last_sent_times.yaml: %s", e)
-        last_sent_times = {}
-
-def save_last_sent_times():
-    try:
-        with open('last_sent_times.yaml', 'w') as file:
-            yaml.safe_dump(last_sent_times, file)
-        logger.info("Saved last_sent_times: %s", last_sent_times)
-    except Exception as e:
-        logger.error("Error saving last_sent_times.yaml: %s", e)
 
 def send_email(username, subject, content):
     try:
@@ -93,24 +64,6 @@ def send_email(username, subject, content):
     except Exception as e:
         logger.error("Failed to send email: %s", e)
 
-
-def load_reminder_settings(username):
-    try:
-        conn = create_connection()
-        c = conn.cursor()
-        c.execute('SELECT email_reminder, reminder_time FROM users WHERE username = ?', (username,))
-        user_settings = c.fetchone()
-        conn.close()
-
-        if user_settings:
-            email_reminder, reminder_time = user_settings
-        else:
-            email_reminder, reminder_time = 'None', '12:00'
-        return email_reminder, reminder_time
-    except Exception as e:
-        logger.error("Error loading reminder settings for %s: %s", username, e)
-        return 'None', '12:00'
-
 def schedule_email(username, subject, content):
     email_reminder, reminder_time = load_reminder_settings(username)
     job_id = f"{username}_{reminder_time}"
@@ -151,27 +104,4 @@ def schedule_email(username, subject, content):
     else:
         logger.info(f"No email reminder set for {username}")
 
-
-def run_scheduled_emails():
-    load_last_sent_times()
-    logger.info("Starting email scheduler...")
-    while True:
-        schedule.run_pending()
-        now = datetime.now(PHT)
-        logger.info(f"Current time: {now}")
-        logger.info("Checking for pending jobs...")
-        for job in schedule.jobs:
-            logger.info(f"Pending job: {job}")
-        time.sleep(1)
-
-def start_scheduler_thread():
-    logger.info("Starting scheduler thread...")
-    thread = threading.Thread(target=run_scheduled_emails, daemon=True)
-    thread.start()
-    logger.info("Scheduler thread started.")
-
-# Ensure this function is called in your main script
-start_scheduler_thread()
-
-if __name__ == "__main__":
-    main()
+# Ensure to update save_last_sent_times() and load_reminder_settings() functions to handle persistence correctly.
