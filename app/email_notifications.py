@@ -5,6 +5,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 import pytz
+import schedule
+import time
+import yaml
 from database import create_connection
 
 # Constants for email configuration
@@ -22,6 +25,10 @@ last_sent_times = {}
 
 # Timezone setup
 PHT = pytz.timezone('Asia/Manila')
+
+# In-memory store for scheduled jobs
+scheduled_jobs = {}
+job_executed = {}
 
 def send_email(username, subject, content):
     try:
@@ -104,4 +111,58 @@ def schedule_email(username, subject, content):
     else:
         logger.info(f"No email reminder set for {username}")
 
-# Ensure to update save_last_sent_times() and load_reminder_settings() functions to handle persistence correctly.
+def save_last_sent_times():
+    try:
+        with open('last_sent_times.yaml', 'w') as file:
+            yaml.safe_dump(last_sent_times, file)
+        logger.info("Saved last_sent_times: %s", last_sent_times)
+    except Exception as e:
+        logger.error("Error saving last_sent_times.yaml: %s", e)
+
+def load_last_sent_times():
+    global last_sent_times
+    try:
+        with open('last_sent_times.yaml', 'r') as file:
+            last_sent_times = yaml.safe_load(file)
+        if last_sent_times is None:
+            last_sent_times = {}
+        logger.info("Loaded last_sent_times: %s", last_sent_times)
+    except FileNotFoundError:
+        last_sent_times = {}
+        logger.warning("last_sent_times.yaml file not found. Initializing empty dictionary.")
+    except Exception as e:
+        logger.error("Error loading last_sent_times.yaml: %s", e)
+        last_sent_times = {}
+
+def load_reminder_settings(username):
+    try:
+        conn = create_connection()
+        c = conn.cursor()
+        c.execute('SELECT email_reminder, reminder_time FROM users WHERE username = ?', (username,))
+        user_settings = c.fetchone()
+        conn.close()
+
+        if user_settings:
+            email_reminder, reminder_time = user_settings
+        else:
+            email_reminder, reminder_time = 'None', '12:00'
+        return email_reminder, reminder_time
+    except Exception as e:
+        logger.error("Error loading reminder settings for %s: %s", username, e)
+        return 'None', '12:00'
+
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+# This function should be called to start the scheduler in your Streamlit app
+def start_scheduler_thread():
+    logger.info("Starting scheduler thread...")
+    import threading
+    scheduler_thread = threading.Thread(target=run_scheduler)
+    scheduler_thread.daemon = True
+    scheduler_thread.start()
+    logger.info("Scheduler thread started.")
+
+start_scheduler_thread()
