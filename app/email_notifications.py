@@ -71,6 +71,7 @@ def send_email(username, subject, content):
     except Exception as e:
         logger.error("Failed to send email: %s", e)
 
+
 def schedule_email(username, subject, content):
     email_reminder, reminder_time = load_reminder_settings(username)
     job_id = f"{username}_{reminder_time}"
@@ -110,6 +111,16 @@ def schedule_email(username, subject, content):
         logger.info(f"Job scheduled: {job_id}")
     else:
         logger.info(f"No email reminder set for {username}")
+
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+        logger.info("Checking for pending jobs...")
+
+        for job in schedule.jobs:
+            logger.info(f"Pending job: {job}")
+
 
 def save_last_sent_times():
     try:
