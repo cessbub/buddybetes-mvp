@@ -154,6 +154,8 @@ def run_scheduled_emails():
         now = datetime.now(PHT)
         logger.info("Current time: %s", now)
         logger.info("Checking for pending jobs...")
+        for job in schedule.jobs:
+            logger.info(f"Pending job: {job}")
         time.sleep(1)
 
 def start_scheduler_thread():
